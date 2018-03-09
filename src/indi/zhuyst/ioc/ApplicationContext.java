@@ -25,36 +25,55 @@ public class ApplicationContext {
         this.init();
     }
 
+    /**
+     * 从工厂{@link #beans}中获取Bean
+     * @param beanName Bean名称{@link Bean#id}
+     * @return Bean
+     */
     public Object getBean(String beanName){
         return beans.get(beanName).getObject();
     }
 
+    /**
+     * 初始化工厂
+     */
     private void init(){
         readXml();
         setBeanProperties();
     }
 
+    /**
+     * 读取XML到{@link #beans}中
+     * @see #XML_PATH
+     */
     private void readXml(){
         InputStream inputStream = this.getClass().getResourceAsStream(XML_PATH);
         SAXParserFactory factory = SAXParserFactory.newInstance();
-        ApplicationContextHandler handler;
-
         try {
             SAXParser parser = factory.newSAXParser();
-            handler = new ApplicationContextHandler();
+            ApplicationContextHandler handler = new ApplicationContextHandler();
+
             parser.parse(inputStream,handler);
+            initBean(handler.getBeans());
 
         } catch (ParserConfigurationException | SAXException | IOException e) {
             throw new RuntimeException("XML解析错误");
 
         }
+    }
 
+    /**
+     * 通过反射，初始化所有的Bean
+     * @param beanList Bean列表
+     */
+    private void initBean(List<Bean> beanList){
         try {
-            List<Bean> list = handler.getBeans();
-            for(Bean bean : list){
+            for(Bean bean : beanList){
                 Object object = Class.forName(bean.getClassPath()).newInstance();
                 bean.setObject(object);
                 beans.put(bean.getId(),bean);
+
+                System.out.println("初始化 —— " + bean.getClassPath());
             }
 
         } catch (ClassNotFoundException e) {
@@ -64,6 +83,9 @@ public class ApplicationContext {
         }
     }
 
+    /**
+     * 核心：通过setter设置Bean中需要的类
+     */
     private void setBeanProperties(){
         for(Map.Entry<String,Bean> entry : beans.entrySet()){
             Bean bean = entry.getValue();
@@ -76,6 +98,8 @@ public class ApplicationContext {
                     if(beans.containsKey(ref)){
                         Object object = beans.get(ref).getObject();
                         setter(bean.getObject(),property.getName(),object);
+
+                        System.out.println("向 " + bean.getClassPath() + " 设置 " + property.getName());
                     }
 
                     else {
@@ -87,6 +111,12 @@ public class ApplicationContext {
         }
     }
 
+    /**
+     * 通过反射设置属性
+     * @param object 要设置的类
+     * @param name 要设置的属性名
+     * @param value 要设置的属性值
+     */
     private static void setter(Object object,String name,Object value){
         String methodName = "set" + getClassName(name);
         try {
@@ -98,6 +128,11 @@ public class ApplicationContext {
         }
     }
 
+    /**
+     * 将属性名转换为类名（首字母大写）
+     * @param name 属性名
+     * @return 类名
+     */
     private static String getClassName(String name){
         return name.substring(0,1).toUpperCase() + name.substring(1);
     }

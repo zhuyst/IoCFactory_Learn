@@ -25,8 +25,14 @@ public class ApplicationContextHandler extends DefaultHandler{
 
     private List<Bean> beans = new ArrayList<>();
 
+    /**
+     * 由于SAX是用流的方式读取，所以需要设置为成员变量
+     */
     private Bean bean;
 
+    /**
+     * 从XML中读取Bean列表
+     */
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
         super.startElement(uri, localName, qName, attributes);
