@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans>
+    <bean id="userDao" class="indi.zhuyst.dao.UserDao"/>
+    <bean id="userService" class="indi.zhuyst.service.UserService">
+        <property name="userDao" ref="userDao"/>
+    </bean>
+</beans>
