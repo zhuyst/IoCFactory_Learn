@@ -38,7 +38,8 @@ public class ApplicationContext {
      * 初始化工厂
      */
     private void init(){
-        readXml();
+        List<Bean> list = readXml();
+        initBean(list);
         setBeanProperties();
     }
 
@@ -46,7 +47,7 @@ public class ApplicationContext {
      * 读取XML到{@link #beans}中
      * @see #XML_PATH
      */
-    private void readXml(){
+    private List<Bean> readXml(){
         InputStream inputStream = this.getClass().getResourceAsStream(XML_PATH);
         SAXParserFactory factory = SAXParserFactory.newInstance();
         try {
@@ -54,7 +55,7 @@ public class ApplicationContext {
             ApplicationContextHandler handler = new ApplicationContextHandler();
 
             parser.parse(inputStream,handler);
-            initBean(handler.getBeans());
+            return handler.getBeans();
 
         } catch (ParserConfigurationException | SAXException | IOException e) {
             throw new RuntimeException("XML解析错误");
@@ -123,7 +124,6 @@ public class ApplicationContext {
             Method setter = object.getClass().getMethod(methodName,value.getClass());
             setter.invoke(object,value);
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            e.printStackTrace();
             throw new RuntimeException("调用Setter失败");
         }
     }
