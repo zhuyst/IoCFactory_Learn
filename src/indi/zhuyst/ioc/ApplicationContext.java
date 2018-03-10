@@ -31,7 +31,11 @@ public class ApplicationContext {
      * @return Bean
      */
     public Object getBean(String beanName){
-        return beans.get(beanName).getObject();
+        Bean bean = beans.get(beanName);
+        if(bean == null){
+            throw new RuntimeException("没有找到" + beanName);
+        }
+        return bean.getObject();
     }
 
     /**
@@ -119,7 +123,9 @@ public class ApplicationContext {
      * @param value 要设置的属性值
      */
     private static void setter(Object object,String name,Object value){
-        String methodName = "set" + getClassName(name);
+        final String setterPrefix = "set";
+        String methodName = setterPrefix + getClassName(name);
+
         try {
             Method setter = object.getClass().getMethod(methodName,value.getClass());
             setter.invoke(object,value);
