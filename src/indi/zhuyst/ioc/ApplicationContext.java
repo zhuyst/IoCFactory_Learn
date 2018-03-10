@@ -17,12 +17,21 @@ import java.util.Map;
 
 public class ApplicationContext {
 
+    private static ApplicationContext instance;
+
     private static final String XML_PATH = "/applicationContext.xml";
 
     private Map<String,Bean> beans = new HashMap<>();
 
-    public ApplicationContext(){
+    private ApplicationContext(){
         this.init();
+    }
+
+    public static ApplicationContext getInstance() {
+        if(instance == null){
+            instance = new ApplicationContext();
+        }
+        return instance;
     }
 
     /**

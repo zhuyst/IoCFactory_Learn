@@ -7,7 +7,7 @@ import indi.zhuyst.service.UserService;
 public class Main {
 
     public static void main(String[] args) {
-        ApplicationContext context = new ApplicationContext();
+        ApplicationContext context = ApplicationContext.getInstance();
         UserService userService = (UserService) context.getBean("userService");
 
         User user = userService.get();
